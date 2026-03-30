@@ -179,7 +179,7 @@ BEGIN
         CONCAT('seed_user_', s.n, '@dodream.test'),
         CONCAT('seed_user_', s.n),
         /* BCrypt hash for raw password: "password" */
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+        '$2a$10$jl6yC5Uo.RJ.RJZHq7TM.e5c6pZKLSZuOJSDTTNOYrR1uiZ1Swzdi',
         CONCAT('seed_nick_', s.n),
         DATE_ADD('1985-01-01', INTERVAL MOD(s.n, 12000) DAY),
         CASE WHEN MOD(s.n, 2) = 0 THEN 'MALE' ELSE 'FEMALE' END,

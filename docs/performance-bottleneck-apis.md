@@ -177,3 +177,18 @@ services:
 4. `/v1/recruit/popular`
 5. `/v1/job/add`
 6. 외부 API 의존군(`/v1/training/list`, `/v1/recruit/list`, scrap 저장 API)
+
+## API별 테스트 결과 이력
+
+아래 표에 API별 부하테스트 결과를 계속 누적한다.
+
+| 날짜 | API | 시나리오 | 결론 | 보고서 |
+|---|---|---|---|---|
+| 2026-03-30 | `GET /v1/todo/other` | ramping-arrival-rate, 최대 60 it/s, 10m | 병목 징후 없음 (에러율 0%, p95 약 20ms) | [docs/todo-other-baseline-report.md](todo-other-baseline-report.md) |
+| 2026-03-31 | `GET /v1/todo/other` | prewarm+warmup 후 ramping-arrival-rate, 최대 400 it/s, 10m | 고부하 구간 병목 발생 (p95 2.53s, dropped 16,548, Hikari pending 급증) | [docs/todo-other-baseline-report.md](todo-other-baseline-report.md) |
+
+추가 기록 템플릿:
+
+| 날짜 | API | 시나리오 | 결론 | 보고서 |
+|---|---|---|---|---|
+| YYYY-MM-DD | `GET /v1/...` | 예: ramping-arrival-rate, 최대 N it/s, 10m | 예: DB 병목 의심 / 병목 없음 | `docs/...-report.md` |
