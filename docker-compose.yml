@@ -5,7 +5,6 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        JAR_FILE: build/libs/*.jar
         PROFILE: local
     ports:
       - "8080:8080"
