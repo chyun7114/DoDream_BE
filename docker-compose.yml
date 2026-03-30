@@ -1,0 +1,75 @@
+services:
+  springboot:
+    container_name: dodream-springboot
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: build/libs/*.jar
+        PROFILE: local
+    ports:
+      - "8080:8080"
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=local
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/dodreamdb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms1024m -Xmx1536m
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    cpus: 1.5
+    mem_limit: 2g
+    networks:
+      - dodream
+
+  mysql:
+    container_name: dodream-mysql
+    image: mysql:8.0
+    ports:
+      - "3305:3306"
+    environment:
+      - TZ=Asia/Seoul
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=dodreamdb
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    cpus: 1.5
+    mem_limit: 3g
+    networks:
+      - dodream
+
+  redis:
+    container_name: dodream-redis
+    image: redis:7
+    ports:
+      - "6378:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
+    cpus: 0.4
+    mem_limit: 512m
+    networks:
+      - dodream
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  dodream:
