@@ -36,6 +36,10 @@ out/
 ### VS Code ###
 .vscode/
 
+### Temp ###
+tmp_bcrypt_gen/
+*.class
+
 
 ### properties ###
 src/main/resources/application.yml
