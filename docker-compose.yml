@@ -66,9 +66,82 @@ services:
     networks:
       - dodream
 
+  prometheus:
+    container_name: dodream-prometheus
+    image: prom/prometheus:v2.54.1
+    profiles: ["monitoring"]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-remote-write-receiver
+      - --storage.tsdb.retention.time=15d
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+    networks:
+      - dodream
+
+  grafana:
+    container_name: dodream-grafana
+    image: grafana/grafana:11.2.2
+    profiles: ["monitoring"]
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - dodream
+
+  cadvisor:
+    container_name: dodream-cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    profiles: ["monitoring"]
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: unless-stopped
+    networks:
+      - dodream
+
+  mysqld-exporter:
+    container_name: dodream-mysqld-exporter
+    image: prom/mysqld-exporter:v0.16.0
+    profiles: ["monitoring"]
+    command:
+      - --config.my-cnf=/etc/mysqld-exporter/.my.cnf
+      - --mysqld.address=mysql:3306
+    ports:
+      - "9104:9104"
+    volumes:
+      - ./monitoring/mysqld-exporter/.my.cnf:/etc/mysqld-exporter/.my.cnf:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dodream
+
 volumes:
   mysql-data:
   redis-data:
+  prometheus-data:
+  grafana-data:
 
 networks:
   dodream:
